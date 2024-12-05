@@ -317,3 +317,146 @@ class MyComponent {
    - 使用后端返回的唯一 ID
    - 使用稳定的业务标识符
    - 必要时可以组合多个字段生成唯一标识
+
+## React vs Vue 状态管理对比
+
+### 基本语法对比
+
+**Vue 的数据绑定：**
+```vue
+<template>
+  <div>
+    <button @click="changeSortOrder">{{ sortOrder }}</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      sortOrder: 'asc'
+    }
+  },
+  methods: {
+    changeSortOrder() {
+      this.sortOrder = 'desc' // 直接修改即可触发更新
+    }
+  }
+}
+</script>
+```
+
+**React 的状态管理：**
+```tsx
+function Component() {
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  const changeSortOrder = () => {
+    setSortOrder('desc'); // 必须通过 setter 函数修改
+  }
+
+  return (
+    <div>
+      <button onClick={changeSortOrder}>{sortOrder}</button>
+    </div>
+  );
+}
+```
+
+### 核心差异
+
+1. **响应式系统实现**
+   - Vue：使用 Proxy (Vue 3) 或 Object.defineProperty (Vue 2) 实现真正的双向绑定
+   - React：通过 setState/useState 的 setter 函数触发单向数据流更新
+
+2. **数据更新方式**
+   - Vue：
+     - 数据天生响应式
+     - 可直接修改值触发更新
+     - 支持直接修改对象属性
+   - React：
+     - 必须使用 setter 函数更新
+     - 遵循不可变性原则
+     - 更新对象需创建新副本
+
+3. **代码风格**
+   - Vue：面向对象风格（this.xxx = 'xxx'）
+   - React：函数式风格（setXxx('xxx')）
+
+### 实际应用示例
+
+**Vue 的实现：**
+```vue
+<template>
+  <div>
+    <button @click="sortOrder = 'asc'">升序</button>
+    <button @click="sortOrder = 'desc'">降序</button>
+    <div>{{ sortedList }}</div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      sortOrder: 'asc',
+      list: [1, 2, 3]
+    }
+  },
+  computed: {
+    sortedList() {
+      return this.sortOrder === 'asc' 
+        ? [...this.list] 
+        : [...this.list].reverse();
+    }
+  }
+}
+</script>
+```
+
+**React 的实现：**
+```tsx
+function Component() {
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [list, setList] = useState([1, 2, 3]);
+
+  const sortedList = useMemo(() => {
+    return sortOrder === 'asc' 
+      ? [...list] 
+      : [...list].reverse();
+  }, [list, sortOrder]);
+
+  return (
+    <div>
+      <button onClick={() => setSortOrder('asc')}>升序</button>
+      <button onClick={() => setSortOrder('desc')}>降序</button>
+      <div>{sortedList}</div>
+    </div>
+  );
+}
+```
+
+### React 状态更新注意事项
+
+1. **异步更新处理**
+```tsx
+// 正确方式：使用函数式更新
+setCount(prevCount => prevCount + 1);
+
+// 可能出问题：直接使用当前值
+setCount(count + 1);
+```
+
+2. **不可变性原则**
+```tsx
+// 对象更新
+setUser(prevUser => ({ ...prevUser, name: 'new name' }));
+
+// 数组更新
+setList(prevList => [...prevList, newItem]);
+```
+
+3. **状态分割建议**
+   - Vue 倾向于在 data 中集中管理状态
+   - React 推荐使用多个 useState 分别管理不同状态
+   - React 的方式有助于代码分割和状态复用

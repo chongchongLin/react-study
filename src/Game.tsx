@@ -30,13 +30,17 @@ export default function Game() {
           </li>
         );
       });
+      const [sortOrder,setSortOrder] = useState('asc');
+      const sortedMoves = sortOrder === 'asc' ? moves : moves.reverse();
     return (
       <div className="game">
         <div className="game-board">
           <Board  xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
         </div>
         <div className="game-info">
-          <ol>{moves}</ol>
+            <button className={sortOrder === 'asc' ? 'sort-button-active' : ''} onClick={()=>setSortOrder('asc')}>升序</button>
+            <button className={sortOrder === 'desc' ? 'sort-button-active' : ''} onClick={()=>setSortOrder('desc')}>降序</button>
+          <ol>{sortedMoves}</ol>
         </div>
       </div>
     );
