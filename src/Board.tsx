@@ -1,6 +1,13 @@
 import Square from "./Square";
 
-export default function Board({xIsNext, squares, onPlay}:{xIsNext:boolean,squares:Array<string | null>,onPlay:(nextSquares:Array<string | null>)=>void}) {
+// 首先定义一个接口
+interface PlayMoveProps {
+    nextSquares: Array<string | null>;
+    row: number;
+    col: number;
+}
+
+export default function Board({xIsNext, squares, onPlay}:{xIsNext:boolean,squares:Array<string | null>,onPlay: (props: PlayMoveProps) => void}) {
     const result = calculateWinner(squares);
     let status;
     
@@ -11,17 +18,24 @@ export default function Board({xIsNext, squares, onPlay}:{xIsNext:boolean,square
     } else {
         status = "Next player: " + (xIsNext ? "X" : "O");
     }
+    function getCoordinates(index: number): [number, number] {
+        const row = Math.floor(index / 3);
+        const col = index % 3;
+        return [row, col];
+    }
     function handleClick(i: number) {
         if(squares[i] || result.winner) {
             return;
         }
+        const [row,col] = getCoordinates(i);
+        console.log(row,col);
         const nextSquares = squares.slice();
         if(xIsNext) {
             nextSquares[i] = "X";
         } else {
             nextSquares[i] = "O";
         }
-       onPlay(nextSquares);
+       onPlay({nextSquares,row,col});
     }
     function calculateWinner(squares: Array<string | null>) {
         const lines = [
