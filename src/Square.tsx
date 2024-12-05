@@ -1,3 +1,17 @@
-export default function Square({value,onSquareClick}:{value:string | null,onSquareClick:()=>void}) {
-    return <button className="square" onClick={onSquareClick}>{value}</button>
+interface SquareProps {
+    value: string | null;
+    onSquareClick: () => void;
+    isWinning?: boolean;
+}
+
+export default function Square({value, onSquareClick, isWinning}: SquareProps) {
+    const className = `square ${isWinning ? 'winning' : ''}`;
+    return (
+        <button 
+            className={className} 
+            onClick={onSquareClick}
+        >
+            {value}
+        </button>
+    );
 }
